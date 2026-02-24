@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SmartMeter Pro</title>
 
-    <!-- PWA Settings -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="mobile-web-app-capable" content="yes">
@@ -22,10 +21,10 @@
             color: #F8FAFC; 
             user-select: none; 
             margin: 0;
-            overflow-x: hidden;
+            height: 100vh;
+            overflow: hidden; /* Body တစ်ခုလုံးကို scroll မဖြစ်အောင် ပိတ်ထားသည် */
         }
 
-        /* Liquid Glass Banner Design */
         .liquid-glass {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(20px) saturate(180%);
@@ -57,13 +56,19 @@
         .list-animation { animation: slideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
         @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Hide Scrollbar */
+        /* Scrollable Area Customization */
+        .history-scroll {
+            height: calc(100vh - 460px); /* Profile Card ရဲ့ အမြင့်ကို ချန်ပြီး ကျန်တာကို scroll ပေးသည် */
+            overflow-y: auto;
+            padding-bottom: 20px;
+        }
+
         ::-webkit-scrollbar { width: 0px; background: transparent; }
     </style>
 </head>
 <body class="antialiased">
 
-    <!-- Top Liquid Glass Banner (Manual PWA Guide) -->
+    <!-- Top Banner -->
     <div id="installBanner" class="fixed top-4 left-4 right-4 z-[100] liquid-glass p-4 flex items-center justify-between banner-animation">
         <div class="flex items-center gap-3">
             <div class="w-10 h-10 bg-gradient-to-tr from-blue-600 to-indigo-500 rounded-xl flex items-center justify-center shadow-lg">
@@ -74,91 +79,93 @@
                 <p class="text-slate-400 text-[9px]">Browser Menu မှ <span class="text-blue-400 font-bold text-[10px]">Add to Home Screen</span> ကိုနှိပ်ပါ</p>
             </div>
         </div>
-        <button onclick="document.getElementById('installBanner').style.display='none'" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors">
+        <button onclick="document.getElementById('installBanner').style.display='none'" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10">
             <i data-lucide="x" class="text-slate-500 w-4 h-4"></i>
         </button>
     </div>
 
-    <!-- App Content Wrapper -->
-    <div id="app-root" class="max-w-md mx-auto min-h-screen relative pt-24 pb-10">
+    <!-- Main Container -->
+    <div id="app-root" class="max-w-md mx-auto h-screen flex flex-col pt-24">
         
-        <!-- Header -->
-        <header class="px-6 pb-16 relative overflow-hidden">
-            <div class="absolute -top-20 -right-20 w-64 h-64 bg-blue-600/10 rounded-full blur-[100px]"></div>
+        <!-- Header & Search (Fixed Part) -->
+        <div class="px-6 flex-none">
+            <header class="pb-6 relative overflow-hidden">
+                <div class="absolute -top-10 -right-10 w-40 h-40 bg-blue-600/10 rounded-full blur-[80px]"></div>
+                <div class="relative z-10 flex items-center gap-4 mb-6">
+                    <div class="w-12 h-12 glass-card flex items-center justify-center border-blue-500/20 shadow-xl">
+                        <i data-lucide="zap" class="text-blue-400 fill-blue-400/20 w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-black tracking-tight text-white">SmartMeter</h1>
+                        <p class="text-blue-500/60 text-[9px] font-bold uppercase tracking-[0.4em]">PRO EDITION</p>
+                    </div>
+                </div>
+
+                <form id="searchForm" class="relative group z-10">
+                    <div class="absolute inset-y-0 left-5 flex items-center pointer-events-none text-slate-500">
+                        <i data-lucide="search" class="w-5 h-5"></i>
+                    </div>
+                    <input type="text" id="searchInput" 
+                        class="w-full h-14 bg-white/5 border border-white/10 rounded-[20px] pl-14 pr-5 text-white outline-none focus:border-blue-500/50 focus:bg-white/10 transition-all text-sm" 
+                        placeholder="ကုဒ် သို့မဟုတ် မီတာနံပါတ်...">
+                    <button type="submit" class="absolute right-2 top-2 bottom-2 px-5 bg-blue-600 text-white rounded-[16px] font-extrabold text-xs active:scale-95 transition-all shadow-lg shadow-blue-600/30">
+                        ရှာမည်
+                    </button>
+                </form>
+            </header>
+        </div>
+
+        <!-- Result Content -->
+        <main class="px-6 flex-1 flex flex-col min-h-0 overflow-hidden">
             
-            <div class="relative z-10 flex items-center gap-4 mb-8">
-                <div class="w-14 h-14 glass-card flex items-center justify-center border-blue-500/20 shadow-xl">
-                    <i data-lucide="zap" class="text-blue-400 fill-blue-400/20 w-7 h-7"></i>
-                </div>
-                <div>
-                    <h1 class="text-2xl font-black tracking-tight text-white">SmartMeter</h1>
-                    <p class="text-blue-500/60 text-[10px] font-bold uppercase tracking-[0.4em]">PRO EDITION</p>
-                </div>
+            <!-- Loading -->
+            <div id="loading" class="hidden glass-card p-10 flex flex-col items-center justify-center">
+                <div class="w-10 h-10 mb-4 border-4 border-t-blue-500 rounded-full loading-ring border-white/5"></div>
+                <p class="font-bold text-slate-500 text-[9px] tracking-widest uppercase">ရှာဖွေနေပါသည်...</p>
             </div>
 
-            <!-- Search Interface -->
-            <form id="searchForm" class="relative group z-10">
-                <div class="absolute inset-y-0 left-5 flex items-center pointer-events-none text-slate-500">
-                    <i data-lucide="search" class="w-5 h-5 group-focus-within:text-blue-400 transition-colors"></i>
+            <!-- Empty -->
+            <div id="empty" class="glass-card py-20 text-center border-dashed flex-none">
+                <div class="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="layout-grid" class="w-6 h-6 text-slate-700"></i>
                 </div>
-                <input type="text" id="searchInput" 
-                    class="w-full h-16 bg-white/5 border border-white/10 rounded-[22px] pl-14 pr-5 text-white outline-none focus:border-blue-500/50 focus:bg-white/10 transition-all text-sm" 
-                    placeholder="ကုဒ် သို့မဟုတ် မီတာနံပါတ်...">
-                <button type="submit" class="absolute right-2.5 top-2.5 bottom-2.5 px-6 bg-blue-600 text-white rounded-[18px] font-extrabold text-xs active:scale-95 transition-all shadow-lg shadow-blue-600/30">
-                    ရှာမည်
-                </button>
-            </form>
-        </header>
-
-        <main class="px-6 -mt-10 relative z-20">
-            <!-- Loading Indicator -->
-            <div id="loading" class="hidden glass-card p-14 flex flex-col items-center justify-center">
-                <div class="w-12 h-12 mb-5 border-4 border-t-blue-500 rounded-full loading-ring border-white/5"></div>
-                <p class="font-bold text-slate-500 text-[10px] tracking-widest uppercase">ရှာဖွေနေပါသည်...</p>
-            </div>
-
-            <!-- Empty State -->
-            <div id="empty" class="glass-card py-24 text-center border-dashed">
-                <div class="w-16 h-16 bg-white/5 rounded-3xl flex items-center justify-center mx-auto mb-6">
-                    <i data-lucide="layout-grid" class="w-8 h-8 text-slate-700"></i>
-                </div>
-                <p class="text-slate-500 font-bold text-[11px] px-14 leading-relaxed">မီတာအချက်အလက်များကို ကြည့်ရှုရန် ကုဒ်တစ်ခုခုကို ရိုက်ထည့်ရှာဖွေပါ</p>
+                <p class="text-slate-500 font-bold text-[10px] px-10 leading-relaxed">မီတာအချက်အလက်များကို ကြည့်ရှုရန် ကုဒ်တစ်ခုခုကို ရိုက်ထည့်ရှာဖွေပါ</p>
             </div>
 
             <!-- Results View -->
-            <div id="result" class="hidden space-y-6">
-                <!-- User Profile Info -->
-                <div class="glass-card p-7 border-blue-500/10 shadow-2xl">
-                    <div class="flex justify-between items-start mb-8">
+            <div id="result" class="hidden flex flex-col h-full space-y-4">
+                
+                <!-- Fixed Profile Card -->
+                <div class="glass-card p-6 border-blue-500/10 shadow-2xl flex-none">
+                    <div class="flex justify-between items-start mb-6">
                         <div class="flex-1">
-                            <p class="text-blue-500 text-[9px] font-black uppercase tracking-widest mb-1">Owner Name</p>
-                            <h2 id="resName" class="text-2xl font-black text-white truncate leading-tight">---</h2>
-                            <div class="flex items-center gap-2 text-slate-500 mt-3">
-                                <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
-                                <span id="resAddr" class="text-[10px] font-medium">---</span>
+                            <p class="text-blue-500 text-[8px] font-black uppercase tracking-widest mb-1">ပိုင်ရှင်အမည်</p>
+                            <h2 id="resName" class="text-xl font-black text-white truncate leading-tight">---</h2>
+                            <div class="flex items-center gap-2 text-slate-500 mt-2">
+                                <i data-lucide="map-pin" class="w-3 h-3"></i>
+                                <span id="resAddr" class="text-[9px] font-medium">---</span>
                             </div>
                         </div>
                     </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="bg-white/[0.02] p-5 rounded-3xl border border-white/5">
-                            <p class="text-[8px] font-bold text-slate-500 uppercase mb-2 tracking-widest" id="label1">---</p>
-                            <p id="val1" class="font-black text-white text-base">---</p>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-white/[0.02] p-4 rounded-2xl border border-white/5">
+                            <p class="text-[7px] font-bold text-slate-500 uppercase mb-1 tracking-widest" id="label1">---</p>
+                            <p id="val1" class="font-black text-white text-sm">---</p>
                         </div>
-                        <div class="bg-white/[0.02] p-5 rounded-3xl border border-white/5">
-                            <p class="text-[8px] font-bold text-slate-500 uppercase mb-2 tracking-widest" id="label2">---</p>
-                            <p id="val2" class="font-black text-white text-base">---</p>
+                        <div class="bg-white/[0.02] p-4 rounded-2xl border border-white/5">
+                            <p class="text-[7px] font-bold text-slate-500 uppercase mb-1 tracking-widest" id="label2">---</p>
+                            <p id="val2" class="font-black text-white text-sm">---</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Usage History List -->
-                <div id="historyList" class="space-y-4 pt-2"></div>
+                <!-- Scrollable History List -->
+                <div id="historyList" class="history-scroll space-y-3"></div>
             </div>
         </main>
     </div>
 
     <script>
-        // Backend URL
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx2V9VdIIoImhRdzIBW4HTPb0-UQcu011qnPPT6IMGKFniNk1MS6APD3Qb8yepVmL7gEw/exec";
         
         lucide.createIcons();
@@ -168,7 +175,6 @@
             const query = document.getElementById('searchInput').value.trim();
             if(!query) return;
 
-            // UI Reset
             document.getElementById('loading').classList.remove('hidden');
             document.getElementById('empty').classList.add('hidden');
             document.getElementById('result').classList.add('hidden');
@@ -179,14 +185,12 @@
                 const data = await response.json();
 
                 if(data && data.owner) {
-                    // Update Profile
                     document.getElementById('resName').innerText = data.owner;
                     document.getElementById('resAddr').innerText = data.address || "ရန်ကုန်တိုင်းဒေသကြီး";
 
                     const val1 = document.getElementById('val1'), val2 = document.getElementById('val2');
                     const label1 = document.getElementById('label1'), label2 = document.getElementById('label2');
 
-                    // Set Labels based on search type
                     if(query === data.comCode.toString()) {
                         label1.innerText = "Ledger Code"; val1.innerText = data.ledgerCode;
                         label2.innerText = "Meter No"; val2.innerText = data.meterNo;
@@ -198,22 +202,21 @@
                         label2.innerText = "Ledger Code"; val2.innerText = data.ledgerCode;
                     }
 
-                    // Build History Items
                     let html = '';
                     data.history.forEach((row, idx) => {
                         html += `
-                        <div class="glass-card p-5 flex items-center justify-between list-animation" style="animation-delay: ${idx * 0.05}s">
-                            <div class="flex items-center gap-5">
-                                <div class="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center text-blue-400 border border-white/5">
-                                    <i data-lucide="calendar" class="w-5 h-5"></i>
+                        <div class="glass-card p-4 flex items-center justify-between list-animation" style="animation-delay: ${idx * 0.05}s">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center text-blue-400 border border-white/5">
+                                    <i data-lucide="calendar" class="w-4 h-4"></i>
                                 </div>
                                 <div>
-                                    <p class="font-black text-white text-[13px] mb-1">${row.month}</p>
-                                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-tighter">${row.unit} Units Usage</p>
+                                    <p class="font-black text-white text-[12px] mb-0.5">${row.month}</p>
+                                    <p class="text-[9px] font-bold text-slate-500 uppercase tracking-tighter">${row.unit} ယူနစ် သုံးစွဲမှု</p>
                                 </div>
                             </div>
                             <div class="text-right">
-                                <p class="font-black text-blue-400 text-base">${row.amount.toLocaleString()}</p>
+                                <p class="font-black text-blue-400 text-sm">${row.amount.toLocaleString()}</p>
                                 <p class="text-[8px] font-black text-slate-600 tracking-widest mt-0.5 uppercase italic">MMK</p>
                             </div>
                         </div>`;
