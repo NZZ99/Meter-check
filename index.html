@@ -22,7 +22,7 @@
             user-select: none; 
             margin: 0;
             height: 100vh;
-            overflow: hidden; /* Body တစ်ခုလုံးကို scroll မဖြစ်အောင် ပိတ်ထားသည် */
+            overflow: hidden;
         }
 
         .liquid-glass {
@@ -50,17 +50,17 @@
             animation: dropIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
-        .loading-ring { animation: ring-rotate 1.5s linear infinite; }
+        .loading-ring { animation: ring-rotate 1s linear infinite; }
         @keyframes ring-rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         
-        .list-animation { animation: slideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
-        @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .list-animation { animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Scrollable Area Customization */
         .history-scroll {
-            height: calc(100vh - 460px); /* Profile Card ရဲ့ အမြင့်ကို ချန်ပြီး ကျန်တာကို scroll ပေးသည် */
+            height: calc(100vh - 460px); 
             overflow-y: auto;
-            padding-bottom: 20px;
+            padding-bottom: 30px;
+            scroll-behavior: smooth;
         }
 
         ::-webkit-scrollbar { width: 0px; background: transparent; }
@@ -87,17 +87,16 @@
     <!-- Main Container -->
     <div id="app-root" class="max-w-md mx-auto h-screen flex flex-col pt-24">
         
-        <!-- Header & Search (Fixed Part) -->
+        <!-- Fixed Search Section -->
         <div class="px-6 flex-none">
-            <header class="pb-6 relative overflow-hidden">
-                <div class="absolute -top-10 -right-10 w-40 h-40 bg-blue-600/10 rounded-full blur-[80px]"></div>
+            <header class="pb-6 relative">
                 <div class="relative z-10 flex items-center gap-4 mb-6">
                     <div class="w-12 h-12 glass-card flex items-center justify-center border-blue-500/20 shadow-xl">
                         <i data-lucide="zap" class="text-blue-400 fill-blue-400/20 w-6 h-6"></i>
                     </div>
                     <div>
-                        <h1 class="text-xl font-black tracking-tight text-white">SmartMeter</h1>
-                        <p class="text-blue-500/60 text-[9px] font-bold uppercase tracking-[0.4em]">PRO EDITION</p>
+                        <h1 class="text-xl font-black tracking-tight text-white uppercase">SmartMeter</h1>
+                        <p class="text-blue-500/60 text-[9px] font-bold uppercase tracking-[0.4em]">Fast Analytics</p>
                     </div>
                 </div>
 
@@ -108,7 +107,7 @@
                     <input type="text" id="searchInput" 
                         class="w-full h-14 bg-white/5 border border-white/10 rounded-[20px] pl-14 pr-5 text-white outline-none focus:border-blue-500/50 focus:bg-white/10 transition-all text-sm" 
                         placeholder="ကုဒ် သို့မဟုတ် မီတာနံပါတ်...">
-                    <button type="submit" class="absolute right-2 top-2 bottom-2 px-5 bg-blue-600 text-white rounded-[16px] font-extrabold text-xs active:scale-95 transition-all shadow-lg shadow-blue-600/30">
+                    <button type="submit" class="absolute right-2 top-2 bottom-2 px-5 bg-blue-600 text-white rounded-[16px] font-extrabold text-xs active:scale-95 transition-all shadow-lg">
                         ရှာမည်
                     </button>
                 </form>
@@ -116,27 +115,22 @@
         </div>
 
         <!-- Result Content -->
-        <main class="px-6 flex-1 flex flex-col min-h-0 overflow-hidden">
+        <main class="px-6 flex-1 flex flex-col min-h-0">
             
-            <!-- Loading -->
             <div id="loading" class="hidden glass-card p-10 flex flex-col items-center justify-center">
                 <div class="w-10 h-10 mb-4 border-4 border-t-blue-500 rounded-full loading-ring border-white/5"></div>
-                <p class="font-bold text-slate-500 text-[9px] tracking-widest uppercase">ရှာဖွေနေပါသည်...</p>
+                <p class="font-bold text-slate-500 text-[9px] tracking-widest uppercase italic">ချက်ချင်းရှာပေးနေပါသည်...</p>
             </div>
 
-            <!-- Empty -->
-            <div id="empty" class="glass-card py-20 text-center border-dashed flex-none">
-                <div class="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <i data-lucide="layout-grid" class="w-6 h-6 text-slate-700"></i>
-                </div>
-                <p class="text-slate-500 font-bold text-[10px] px-10 leading-relaxed">မီတာအချက်အလက်များကို ကြည့်ရှုရန် ကုဒ်တစ်ခုခုကို ရိုက်ထည့်ရှာဖွေပါ</p>
+            <div id="empty" class="glass-card py-20 text-center border-dashed">
+                <i data-lucide="search" class="w-6 h-6 text-slate-700 mx-auto mb-4 opacity-30"></i>
+                <p class="text-slate-500 font-bold text-[10px] px-10">မီတာအချက်အလက်များကို ကြည့်ရှုရန် ရှာဖွေပါ</p>
             </div>
 
-            <!-- Results View -->
             <div id="result" class="hidden flex flex-col h-full space-y-4">
                 
                 <!-- Fixed Profile Card -->
-                <div class="glass-card p-6 border-blue-500/10 shadow-2xl flex-none">
+                <div class="glass-card p-6 border-blue-500/10 shadow-2xl flex-none sticky top-0 z-30">
                     <div class="flex justify-between items-start mb-6">
                         <div class="flex-1">
                             <p class="text-blue-500 text-[8px] font-black uppercase tracking-widest mb-1">ပိုင်ရှင်အမည်</p>
@@ -149,11 +143,11 @@
                     </div>
                     <div class="grid grid-cols-2 gap-3">
                         <div class="bg-white/[0.02] p-4 rounded-2xl border border-white/5">
-                            <p class="text-[7px] font-bold text-slate-500 uppercase mb-1 tracking-widest" id="label1">---</p>
+                            <p class="text-[7px] font-bold text-slate-500 uppercase mb-1" id="label1">---</p>
                             <p id="val1" class="font-black text-white text-sm">---</p>
                         </div>
                         <div class="bg-white/[0.02] p-4 rounded-2xl border border-white/5">
-                            <p class="text-[7px] font-bold text-slate-500 uppercase mb-1 tracking-widest" id="label2">---</p>
+                            <p class="text-[7px] font-bold text-slate-500 uppercase mb-1" id="label2">---</p>
                             <p id="val2" class="font-black text-white text-sm">---</p>
                         </div>
                     </div>
@@ -168,6 +162,9 @@
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx2V9VdIIoImhRdzIBW4HTPb0-UQcu011qnPPT6IMGKFniNk1MS6APD3Qb8yepVmL7gEw/exec";
         
+        // Fast Cache Memory
+        const dataCache = new Map();
+        
         lucide.createIcons();
 
         document.getElementById('searchForm').addEventListener('submit', async (e) => {
@@ -175,67 +172,82 @@
             const query = document.getElementById('searchInput').value.trim();
             if(!query) return;
 
+            // Check Cache first
+            if(dataCache.has(query)) {
+                renderResult(dataCache.get(query), query);
+                return;
+            }
+
             document.getElementById('loading').classList.remove('hidden');
             document.getElementById('empty').classList.add('hidden');
             document.getElementById('result').classList.add('hidden');
-            document.getElementById('historyList').innerHTML = '';
 
             try {
+                // Fetch with timeout/optimized handling
                 const response = await fetch(`${SCRIPT_URL}?search=${encodeURIComponent(query)}`);
                 const data = await response.json();
 
                 if(data && data.owner) {
-                    document.getElementById('resName').innerText = data.owner;
-                    document.getElementById('resAddr').innerText = data.address || "ရန်ကုန်တိုင်းဒေသကြီး";
-
-                    const val1 = document.getElementById('val1'), val2 = document.getElementById('val2');
-                    const label1 = document.getElementById('label1'), label2 = document.getElementById('label2');
-
-                    if(query === data.comCode.toString()) {
-                        label1.innerText = "Ledger Code"; val1.innerText = data.ledgerCode;
-                        label2.innerText = "Meter No"; val2.innerText = data.meterNo;
-                    } else if(query === data.ledgerCode.toString()) {
-                        label1.innerText = "Com Code"; val1.innerText = data.comCode;
-                        label2.innerText = "Meter No"; val2.innerText = data.meterNo;
-                    } else {
-                        label1.innerText = "Com Code"; val1.innerText = data.comCode;
-                        label2.innerText = "Ledger Code"; val2.innerText = data.ledgerCode;
-                    }
-
-                    let html = '';
-                    data.history.forEach((row, idx) => {
-                        html += `
-                        <div class="glass-card p-4 flex items-center justify-between list-animation" style="animation-delay: ${idx * 0.05}s">
-                            <div class="flex items-center gap-4">
-                                <div class="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center text-blue-400 border border-white/5">
-                                    <i data-lucide="calendar" class="w-4 h-4"></i>
-                                </div>
-                                <div>
-                                    <p class="font-black text-white text-[12px] mb-0.5">${row.month}</p>
-                                    <p class="text-[9px] font-bold text-slate-500 uppercase tracking-tighter">${row.unit}သုံးစွဲယူနစ်</p>
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <p class="font-black text-blue-400 text-sm">${row.amount.toLocaleString()}</p>
-                                <p class="text-[8px] font-black text-slate-600 tracking-widest mt-0.5 uppercase italic">MMK</p>
-                            </div>
-                        </div>`;
-                    });
-
-                    document.getElementById('historyList').innerHTML = html;
-                    lucide.createIcons();
-                    document.getElementById('result').classList.remove('hidden');
+                    dataCache.set(query, data); // Save to cache
+                    renderResult(data, query);
                 } else {
                     alert("ရှာမတွေ့ပါ၊ ကုဒ်ပြန်စစ်ပေးပါ။");
                     document.getElementById('empty').classList.remove('hidden');
+                    document.getElementById('loading').classList.add('hidden');
                 }
             } catch (err) {
                 alert("ဒေတာချိတ်ဆက်မှု အဆင်မပြေပါ");
                 document.getElementById('empty').classList.remove('hidden');
-            } finally {
                 document.getElementById('loading').classList.add('hidden');
             }
         });
+
+        function renderResult(data, query) {
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('resName').innerText = data.owner;
+            document.getElementById('resAddr').innerText = data.address || "ရန်ကုန်တိုင်းဒေသကြီး";
+
+            const val1 = document.getElementById('val1'), val2 = document.getElementById('val2');
+            const label1 = document.getElementById('label1'), label2 = document.getElementById('label2');
+
+            if(query === data.comCode.toString()) {
+                label1.innerText = "Ledger Code"; val1.innerText = data.ledgerCode;
+                label2.innerText = "Meter No"; val2.innerText = data.meterNo;
+            } else if(query === data.ledgerCode.toString()) {
+                label1.innerText = "Com Code"; val1.innerText = data.comCode;
+                label2.innerText = "Meter No"; val2.innerText = data.meterNo;
+            } else {
+                label1.innerText = "Com Code"; val1.innerText = data.comCode;
+                label2.innerText = "Ledger Code"; val2.innerText = data.ledgerCode;
+            }
+
+            let html = '';
+            data.history.forEach((row, idx) => {
+                html += `
+                <div class="glass-card p-4 flex items-center justify-between list-animation" style="animation-delay: ${idx * 0.04}s">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center text-blue-400 border border-white/5">
+                            <i data-lucide="calendar" class="w-4 h-4"></i>
+                        </div>
+                        <div>
+                            <p class="font-black text-white text-[12px] mb-0.5">${row.month}</p>
+                            <p class="text-[9px] font-bold text-slate-500 uppercase tracking-tighter">${row.unit} ယူနစ် သုံးစွဲမှု</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-black text-blue-400 text-sm">${row.amount.toLocaleString()}</p>
+                        <p class="text-[8px] font-black text-slate-600 tracking-widest mt-0.5 uppercase italic">MMK</p>
+                    </div>
+                </div>`;
+            });
+
+            document.getElementById('historyList').innerHTML = html;
+            lucide.createIcons();
+            document.getElementById('result').classList.remove('hidden');
+            
+            // Auto scroll to top of list
+            document.getElementById('historyList').scrollTop = 0;
+        }
     </script>
 </body>
 </html>
